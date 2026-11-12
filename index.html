@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Blaze's Fluency Studio + Progress Tracker</title>
+<style>
+:root{
+  --navy:#163a63;--orange:#f39a2d;--cream:#fff9ef;--green:#4fa86e;
+  --blue:#eaf4ff;--gold:#ffd56a;--ink:#1e2b36;--red:#b64b4b;--purple:#7654a8
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:linear-gradient(180deg,#f7fbff,#fffaf2)}
+.wrap{max-width:1080px;margin:auto;padding:20px}
+.hero{background:var(--navy);color:#fff;border-radius:24px;padding:26px;text-align:center;box-shadow:0 8px 22px rgba(0,0,0,.12)}
+.hero h1{margin:0;font-size:clamp(32px,6vw,54px)}
+.hero p{font-size:20px;margin:10px 0 0}
+.tag{display:inline-block;background:var(--orange);padding:8px 14px;border-radius:999px;font-weight:700;margin-top:12px}
+.card{background:#fff;border-radius:20px;padding:20px;margin-top:18px;box-shadow:0 5px 16px rgba(0,0,0,.09);border:3px solid #edf1f5}
+h2,h3{color:var(--navy);margin-top:0}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.step{background:var(--blue);border-radius:16px;padding:12px 8px;text-align:center;font-weight:700}
+.step b{display:block;font-size:22px;color:var(--orange)}
+label{font-weight:700;display:block;margin:10px 0 6px}
+input,select,textarea,button{width:100%;font-size:17px;padding:11px;border-radius:12px;border:2px solid #cfd8e3}
+button{border:0;background:var(--navy);color:#fff;font-weight:700;cursor:pointer;margin-top:10px}
+button.alt{background:var(--orange)}
+button.good{background:var(--green)}
+button.purple{background:var(--purple)}
+button.danger{background:var(--red)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.passage{font-size:21px;line-height:1.55;background:var(--cream);padding:18px;border-radius:16px;border-left:8px solid var(--gold);white-space:pre-wrap}
+.timer{font-size:46px;font-weight:800;text-align:center;color:var(--navy);margin:8px 0}
+.goalgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.goal{background:#f7f9fb;border:2px solid #d9e1e8;border-radius:14px;padding:12px;text-align:left}
+.goal input{width:auto;margin-right:8px}
+audio{width:100%;margin-top:10px}
+.tip{background:#eef9f1;border-left:6px solid var(--green);padding:12px;border-radius:10px;margin-top:10px}
+.warn{background:#fff0ef;border-left:6px solid var(--red);padding:12px;border-radius:10px;margin-top:10px}
+.small{font-size:14px;color:#5b6772}
+.finish{background:#fff3d6;border:2px solid #ffd56a}
+.metric{background:#f5f8fb;border-radius:14px;padding:14px;text-align:center;border:2px solid #e0e6ec}
+.metric .big{font-size:30px;font-weight:800;color:var(--navy)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:9px;border-bottom:1px solid #ddd;text-align:left}
+th{background:#f3f6f9;color:var(--navy);position:sticky;top:0}
+.tablewrap{overflow:auto;max-height:420px;border:1px solid #ddd;border-radius:12px}
+.hidden{display:none}
+.teacher{border-color:#d8c8f0;background:#fcfaff}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.tabs button{width:auto;padding:10px 16px;margin:0}
+.activeTab{background:var(--orange)!important}
+canvas{width:100%;height:280px;background:white;border:1px solid #ddd;border-radius:12px}
+@media(max-width:760px){
+  .steps,.row,.row3,.goalgrid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<section class="hero">
+  <h1>🎙️ Blaze's Fluency Studio</h1>
+  <p>Read it. Hear it. Improve it. Read it again.</p>
+  <div class="tag">Grades 3–4 • Progress Tracker</div>
+</section>
+
+<div class="tabs">
+  <button id="studentTabBtn" class="activeTab">Student Station</button>
+  <button id="teacherTabBtn" class="purple">Teacher Dashboard</button>
+</div>
+
+<div id="studentView">
+<section class="card">
+  <h2>How it works</h2>
+  <div class="steps">
+    <div class="step"><b>1</b>Choose</div>
+    <div class="step"><b>2</b>Record</div>
+    <div class="step"><b>3</b>Listen</div>
+    <div class="step"><b>4</b>Improve</div>
+    <div class="step"><b>5</b>Re-record</div>
+  </div>
+</section>
+
+<section class="card">
+  <h2>1. Get Ready</h2>
+  <div class="row3">
+    <div><label for="student">First name</label><input id="student" placeholder="Type your first name"></div>
+    <div><label for="grade">Grade</label><select id="grade"><option value="3">3rd Grade</option><option value="4">4th Grade</option></select></div>
+    <div><label for="teacher">Teacher</label>
+      <select id="teacher">
+        <option value="Coit">Coit</option>
+        <option value="Verros">Verros</option>
+        <option value="Irwin">Irwin</option>
+        <option value="Schultz">Schultz</option>
+      </select>
+    </div>
+  </div>
+  <label for="passageSelect">Choose a passage</label>
+  <select id="passageSelect"></select>
+  <div id="passageMeta" class="small" style="margin-top:8px"></div>
+  <div id="passage" class="passage" style="margin-top:12px"></div>
+  <div class="tip">👀 <b>Preview first.</b> Read silently for about 30 seconds. Notice punctuation and tricky words.</div>
+</section>
+
+<section class="card">
+  <h2>2. Read #1</h2>
+  <p>Read aloud for about <b>60 seconds</b>. If you finish before 60 seconds, stop when you finish.</p>
+  <div id="timer1" class="timer">0:00</div>
+  <button id="start1">🎙️ Start Read #1</button>
+  <button id="stop1" class="alt" disabled>⏹ Stop</button>
+  <audio id="audio1" controls class="hidden"></audio>
+  <button id="download1" class="good hidden">⬇️ Download Read #1</button>
+</section>
+
+<section class="card">
+  <h2>3. Listen & Coach Yourself</h2>
+  <p>Listen to Read #1. Then choose <b>one goal</b>.</p>
+  <div class="goalgrid">
+    <label class="goal"><input type="radio" name="goal" value="Accuracy">🎯 <b>Accuracy</b><br><span class="small">Read the words correctly.</span></label>
+    <label class="goal"><input type="radio" name="goal" value="Smoothness">🌊 <b>Smoothness</b><br><span class="small">Make your reading flow.</span></label>
+    <label class="goal"><input type="radio" name="goal" value="Phrasing">🧩 <b>Phrasing</b><br><span class="small">Group words that belong together.</span></label>
+    <label class="goal"><input type="radio" name="goal" value="Expression">🎭 <b>Expression</b><br><span class="small">Make your voice match the meaning.</span></label>
+    <label class="goal"><input type="radio" name="goal" value="Punctuation">🛑 <b>Punctuation</b><br><span class="small">Let punctuation guide your voice.</span></label>
+    <label class="goal"><input type="radio" name="goal" value="Pace">⏱️ <b>Pace</b><br><span class="small">Not too fast. Not too slow.</span></label>
+  </div>
+  <label for="reflection">My plan for Read #2</label>
+  <textarea id="reflection" rows="3" placeholder="Example: I will pause at commas and group words into phrases."></textarea>
+</section>
+
+<section class="card">
+  <h2>4. Read #2</h2>
+  <p>Read the same passage again. Concentrate on your goal.</p>
+  <div id="timer2" class="timer">0:00</div>
+  <button id="start2">🎙️ Start Read #2</button>
+  <button id="stop2" class="alt" disabled>⏹ Stop</button>
+  <audio id="audio2" controls class="hidden"></audio>
+  <button id="download2" class="good hidden">⬇️ Download Read #2</button>
+</section>
+
+<section class="card finish">
+  <h2>5. Student Reflection</h2>
+  <label for="improved">What improved?</label>
+  <select id="improved">
+    <option>I was more accurate.</option>
+    <option>I sounded smoother.</option>
+    <option>I used better phrasing.</option>
+    <option>I used more expression.</option>
+    <option>I followed punctuation better.</option>
+    <option>My pace was easier to understand.</option>
+  </select>
+  <label for="teacherNote">Optional note for your teacher</label>
+  <textarea id="teacherNote" rows="2" placeholder="Something I want help with..."></textarea>
+  <button id="saveStudentSession" class="good">📨 SEND TO MY TEACHER</button>
+  <div id="studentSavedMsg" class="tip hidden"></div>
+</section>
+</div>
+
+<div id="teacherView" class="hidden">
+<section class="card teacher">
+  <h2>👩‍🏫 Teacher Fluency Check</h2>
+  <div class="warn">
+    <b>Why a teacher check?</b> Automatic speech scoring can mishear children's reading. For authentic data, enter the words read/errors after listening to the recording.
+  </div>
+
+  <div class="row">
+    <div>
+      <label for="teacherStudent">Student</label>
+      <select id="teacherStudent"></select>
+    </div>
+    <div>
+      <label for="teacherSession">Session</label>
+      <select id="teacherSession"></select>
+    </div>
+  </div>
+
+  <h3>Read #1 Data</h3>
+  <div class="row3">
+    <div><label>Words attempted/read</label><input id="r1Words" type="number" min="0"></div>
+    <div><label>Errors</label><input id="r1Errors" type="number" min="0" value="0"></div>
+    <div><label>Seconds</label><input id="r1Seconds" type="number" min="1"></div>
+  </div>
+
+  <h3 style="margin-top:18px">Read #2 Data</h3>
+  <div class="row3">
+    <div><label>Words attempted/read</label><input id="r2Words" type="number" min="0"></div>
+    <div><label>Errors</label><input id="r2Errors" type="number" min="0" value="0"></div>
+    <div><label>Seconds</label><input id="r2Seconds" type="number" min="1"></div>
+  </div>
+
+  <h3 style="margin-top:18px">Prosody / Fluency Rubric</h3>
+  <div class="row">
+    <div>
+      <label for="phrasingScore">Phrasing & Smoothness (1–4)</label>
+      <select id="phrasingScore">
+        <option value="1">1 - Mostly word-by-word/choppy</option>
+        <option value="2">2 - Some phrases, still uneven</option>
+        <option value="3">3 - Mostly smooth, meaningful phrasing</option>
+        <option value="4">4 - Smooth, natural phrasing throughout</option>
+      </select>
+    </div>
+    <div>
+      <label for="expressionScore">Expression & Punctuation (1–4)</label>
+      <select id="expressionScore">
+        <option value="1">1 - Flat / punctuation often ignored</option>
+        <option value="2">2 - Some expression / inconsistent punctuation</option>
+        <option value="3">3 - Appropriate expression most of the time</option>
+        <option value="4">4 - Natural, expressive, meaning-focused</option>
+      </select>
+    </div>
+  </div>
+
+  <label for="teacherFeedback">Teacher feedback</label>
+  <textarea id="teacherFeedback" rows="3" placeholder="Glow + Goal"></textarea>
+
+  <button id="calculateSave" class="good">📊 Calculate & Save Fluency Data</button>
+  <div id="teacherResult" class="tip hidden"></div>
+</section>
+
+<section class="card">
+  <h2>Student Growth Snapshot</h2>
+  <div class="row3">
+    <div class="metric"><div class="small">Latest WCPM</div><div id="mWcpm" class="big">—</div></div>
+    <div class="metric"><div class="small">Latest Accuracy</div><div id="mAccuracy" class="big">—</div></div>
+    <div class="metric"><div class="small">Latest Prosody</div><div id="mProsody" class="big">—</div></div>
+  </div>
+  <canvas id="growthChart" width="900" height="280"></canvas>
+</section>
+
+<section class="card">
+  <h2>All Fluency Records</h2>
+  <div class="row">
+    <div><label for="filterStudent">Filter student</label><select id="filterStudent"></select></div>
+    <div><label for="filterGrade">Filter grade</label><select id="filterGrade"><option value="">All Grades</option><option value="3">3rd</option><option value="4">4th</option></select></div>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th><th>Student</th><th>Teacher</th><th>Gr.</th><th>Passage</th>
+          <th>R1 WCPM</th><th>R2 WCPM</th><th>R2 Accuracy</th><th>Prosody</th><th>Goal</th>
+        </tr>
+      </thead>
+      <tbody id="recordsBody"></tbody>
+    </table>
+  </div>
+  <button id="exportCsv" class="purple">⬇️ Export CSV</button>
+  <button id="clearData" class="danger">🗑️ Clear All Saved Data</button>
+  <p class="small">Student submissions are also sent to the teacher Google Sheet. This browser keeps a local backup for the on-device dashboard.</p>
+</section>
+</div>
+
+</div>
+
+<script>
+const passages=[
+{title:"Winter Surprise",level:"Fiction",text:`The first snow of the season began just before lunch. At first, only a few tiny flakes drifted past the classroom window. Then the sky turned pale gray, and the snow began to fall faster.
+
+“Look!” Maya whispered.
+
+Everyone wanted to rush to the window, but Mr. Lee smiled and held up one finger. “Finish the paragraph you are reading first,” he said.
+
+By recess, the playground had changed completely. The blacktop was covered in white, and every footprint made a dark path through the snow. Maya stepped outside and caught a snowflake on her mitten. For a moment, the whole playground seemed quieter than usual.`},
+{title:"The Library Mystery",level:"Fiction / Suspense",text:`Jordan knew something was strange the moment he walked into the library. A book was sitting in the middle of the floor.
+
+It was not on a cart. It was not beside a shelf. It was simply there.
+
+Jordan picked it up and looked at the call number. “This belongs all the way across the room,” he said.
+
+As he carried it back, he spotted another book on the floor. Then another.
+
+Jordan followed the trail until he reached the last shelf. Behind it, he heard a soft scratching sound.
+
+He leaned closer.
+
+Something moved.
+
+Jordan took one careful step backward and called for the librarian.`},
+{title:"Why Animals Prepare for Winter",level:"Nonfiction",text:`Animals have different ways of surviving cold winter weather. Some animals migrate, which means they travel to a warmer place. Many birds fly south because food is easier to find there.
+
+Other animals stay in the same area but change their behavior. Squirrels gather and store food. Some animals grow thicker coats that help keep their bodies warm.
+
+A few animals spend much of the winter sleeping or resting. During this time, their bodies use less energy.
+
+Each strategy helps an animal meet the same challenge: finding enough food and staying safe when temperatures drop.`},
+{title:"The Fastest Sled",level:"Dialogue / Fiction",text:`“Ready?” called Elena.
+
+Marcus gripped the rope on his sled. “Ready!”
+
+They pushed off at the same time.
+
+Elena's sled shot forward, spraying powdery snow behind her. Marcus leaned low and tried to steer around a bump. His sled bounced once, twice, and then spun sideways.
+
+“Elena!” he shouted, laughing.
+
+She crossed the finish line and jumped up. “I won!”
+
+Marcus finally stopped near a snowbank. He stood, brushed snow from his coat, and grinned.
+
+“Best two out of three?” he asked.
+
+Elena grabbed her sled. “Race you back to the top!”`},
+{title:"How Snowflakes Form",level:"Nonfiction",text:`A snowflake begins high in the atmosphere inside a cloud. When the air is cold enough, water vapor freezes around a tiny particle, such as a speck of dust.
+
+As the ice crystal moves through the cloud, more water vapor freezes onto it. The crystal grows larger and develops six sides.
+
+Temperature and moisture affect the way each snowflake grows. That is why snowflakes can have different shapes and patterns.
+
+Eventually, the crystal becomes heavy enough to fall toward the ground. If the air stays cold during its trip, it reaches Earth as snow.`},
+{title:"A Kindness Challenge",level:"Fiction",text:`On Monday morning, Mrs. Carter gave the class a challenge.
+
+“Before Friday,” she said, “do something kind for someone without being asked.”
+
+At first, Sam thought the assignment sounded easy. But Mrs. Carter added one rule: they could not spend money.
+
+Sam started paying attention. He held the door for a first grader. He helped a classmate pick up spilled crayons. At lunch, he invited a student who was sitting alone to join his table.
+
+By Thursday, Sam realized something surprising. The challenge was not really about completing an assignment. It was about noticing when someone needed help.`}
+];
+
+function wordCount(text){
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+passages.forEach(p=>p.words=wordCount(p.text));
+
+const sel=document.getElementById('passageSelect');
+const passageBox=document.getElementById('passage');
+const passageMeta=document.getElementById('passageMeta');
+passages.forEach((p,i)=>{const o=document.createElement('option');o.value=i;o.textContent=p.title;sel.appendChild(o);});
+function showPassage(){
+  const p=passages[+sel.value];
+  passageBox.textContent=p.text;
+  passageMeta.textContent=`${p.level} • ${p.words} words`;
+}
+sel.addEventListener('change',showPassage);showPassage();
+
+let stream=null;
+let readTimes={1:0,2:0};
+let blobs={1:null,2:null};
+let blobUrls={1:null,2:null};
+
+async function getStream(){
+  if(!stream) stream=await navigator.mediaDevices.getUserMedia({audio:true});
+  return stream;
+}
+
+function recorderSetup(num){
+  let recorder,chunks=[],interval,seconds=0;
+  const start=document.getElementById('start'+num),stop=document.getElementById('stop'+num),
+  audio=document.getElementById('audio'+num),download=document.getElementById('download'+num),
+  timer=document.getElementById('timer'+num);
+
+  function drawTime(){
+    const m=Math.floor(seconds/60),s=String(seconds%60).padStart(2,'0');
+    timer.textContent=`${m}:${s}`;
+  }
+
+  start.addEventListener('click',async()=>{
+    try{
+      const s=await getStream();
+      chunks=[];
+      recorder=new MediaRecorder(s);
+      recorder.ondataavailable=e=>chunks.push(e.data);
+      recorder.onstop=()=>{
+        blobs[num]=new Blob(chunks,{type:recorder.mimeType||'audio/webm'});
+        if(blobUrls[num]) URL.revokeObjectURL(blobUrls[num]);
+        blobUrls[num]=URL.createObjectURL(blobs[num]);
+        audio.src=blobUrls[num];
+        audio.classList.remove('hidden');
+        download.classList.remove('hidden');
+        readTimes[num]=seconds;
+      };
+      recorder.start();
+      seconds=0;drawTime();
+      interval=setInterval(()=>{seconds++;drawTime();},1000);
+      start.disabled=true;stop.disabled=false;
+    }catch(e){
+      alert("Microphone access is needed. Make sure this page is opened from an HTTPS website in Chrome, then allow the microphone.");
+    }
+  });
+
+  stop.addEventListener('click',()=>{
+    if(recorder&&recorder.state!=="inactive") recorder.stop();
+    clearInterval(interval);
+    start.disabled=false;stop.disabled=true;
+    readTimes[num]=seconds;
+  });
+
+  download.addEventListener('click',()=>{
+    if(!blobs[num]) return;
+    const name=(document.getElementById('student').value||'student').replace(/[^a-z0-9_-]/gi,'_');
+    const passage=passages[+sel.value].title.replace(/[^a-z0-9_-]/gi,'_');
+    const a=document.createElement('a');
+    a.href=blobUrls[num];a.download=`${name}_${passage}_Read${num}.webm`;a.click();
+  });
+}
+
+document.getElementById('micCheck').addEventListener('click', async()=>{
+  const status=document.getElementById('micStatus');
+
+  if(!window.isSecureContext){
+    status.innerHTML="❌ This page is not running on HTTPS. The microphone needs a secure website.";
+    status.classList.remove('hidden');
+    return;
+  }
+
+  try{
+    const testStream=await navigator.mediaDevices.getUserMedia({audio:true});
+    testStream.getTracks().forEach(track=>track.stop());
+    status.innerHTML="✅ Microphone is ready!";
+    status.classList.remove('hidden');
+  }catch(e){
+    status.innerHTML="❌ Microphone is blocked. In Chrome, click the site controls/lock icon near the address bar → Microphone → Allow, then reload.";
+    status.classList.remove('hidden');
+  }
+});
+
+recorderSetup(1);recorderSetup(2);
+
+function getSessions(){return JSON.parse(localStorage.getItem('blazeFluencySessions')||'[]');}
+function saveSessions(arr){localStorage.setItem('blazeFluencySessions',JSON.stringify(arr));}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+
+
+const WEB_APP_URL = "https://script.google.com/a/macros/gower62.com/s/AKfycbw0PaFbZrHRhSgYNLKNwPuF3Nrss31ImPcoIxGaQ9rv_RVOBJPJgBK13sx7rCDtONgV/exec";
+
+document.getElementById('saveStudentSession').addEventListener('click', async()=>{
+  const student=document.getElementById('student').value.trim();
+  if(!student){alert("Please enter your first name.");return;}
+
+  const goal=document.querySelector('input[name="goal"]:checked');
+  const p=passages[+sel.value];
+
+  const session={
+    id:uid(),
+    date:new Date().toLocaleDateString(),
+    timestamp:Date.now(),
+    student,
+    grade:document.getElementById('grade').value,
+    teacher:document.getElementById('teacher').value,
+    passage:p.title,
+    passageWords:p.words,
+    goal:goal?goal.value:'',
+    reflection:document.getElementById('reflection').value,
+    improved:document.getElementById('improved').value,
+    studentNote:document.getElementById('teacherNote').value,
+    read1Seconds:readTimes[1]||0,
+    read2Seconds:readTimes[2]||0,
+    scored:false
+  };
+
+  const btn=document.getElementById('saveStudentSession');
+  const msg=document.getElementById('studentSavedMsg');
+  btn.disabled=true;
+  btn.textContent="Sending...";
+
+  try {
+    await fetch(WEB_APP_URL, {
+      method:"POST",
+      mode:"no-cors",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify(session)
+    });
+
+    // Keep a local copy too, so the station still has a backup on this Chromebook.
+    const sessions=getSessions();
+    sessions.push(session);
+    saveSessions(sessions);
+
+    msg.innerHTML="✅ <b>Sent to your teacher!</b> Your fluency session was submitted.";
+    msg.classList.remove('hidden');
+    refreshTeacherSelectors();
+  } catch(err) {
+    // Local fallback if network submission fails.
+    const sessions=getSessions();
+    sessions.push(session);
+    saveSessions(sessions);
+    msg.innerHTML="⚠️ I saved your session on this Chromebook, but I could not confirm the teacher submission. Please tell your teacher.";
+    msg.classList.remove('hidden');
+  } finally {
+    btn.disabled=false;
+    btn.textContent="📨 SEND TO MY TEACHER";
+  }
+});
+
+function wcpm(words,errors,seconds){
+  if(!seconds||seconds<=0) return null;
+  return Math.round(((Math.max(0,words-errors))/seconds)*60);
+}
+function accuracy(words,errors){
+  if(!words||words<=0) return null;
+  return Math.max(0,Math.round(((words-errors)/words)*1000)/10);
+}
+
+const studentTabBtn=document.getElementById('studentTabBtn');
+const teacherTabBtn=document.getElementById('teacherTabBtn');
+const studentView=document.getElementById('studentView');
+const teacherView=document.getElementById('teacherView');
+studentTabBtn.onclick=()=>{
+  studentView.classList.remove('hidden');teacherView.classList.add('hidden');
+  studentTabBtn.classList.add('activeTab');teacherTabBtn.classList.remove('activeTab');
+};
+teacherTabBtn.onclick=()=>{
+  teacherView.classList.remove('hidden');studentView.classList.add('hidden');
+  teacherTabBtn.classList.add('activeTab');studentTabBtn.classList.remove('activeTab');
+  refreshTeacherSelectors();renderRecords();
+};
+
+function uniqueStudents(){
+  return [...new Set(getSessions().map(s=>s.student))].sort((a,b)=>a.localeCompare(b));
+}
+function refreshTeacherSelectors(){
+  const students=uniqueStudents();
+  const tsel=document.getElementById('teacherStudent');
+  const fsel=document.getElementById('filterStudent');
+  const current=tsel.value;
+  tsel.innerHTML='';
+  students.forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;tsel.appendChild(o);});
+  fsel.innerHTML='<option value="">All Students</option>';
+  students.forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;fsel.appendChild(o);});
+  if(students.includes(current)) tsel.value=current;
+  refreshSessionSelector();
+}
+function refreshSessionSelector(){
+  const student=document.getElementById('teacherStudent').value;
+  const sessions=getSessions().filter(s=>s.student===student).sort((a,b)=>b.timestamp-a.timestamp);
+  const ss=document.getElementById('teacherSession');
+  ss.innerHTML='';
+  sessions.forEach(s=>{
+    const o=document.createElement('option');o.value=s.id;
+    o.textContent=`${s.date} • ${s.teacher||''} • ${s.passage}${s.scored?' • scored':''}`;
+    ss.appendChild(o);
+  });
+  loadSelectedSession();
+}
+document.getElementById('teacherStudent').addEventListener('change',refreshSessionSelector);
+document.getElementById('teacherSession').addEventListener('change',loadSelectedSession);
+
+function loadSelectedSession(){
+  const id=document.getElementById('teacherSession').value;
+  const s=getSessions().find(x=>x.id===id);
+  if(!s) return;
+  document.getElementById('r1Seconds').value=s.read1Seconds||'';
+  document.getElementById('r2Seconds').value=s.read2Seconds||'';
+  document.getElementById('r1Words').value=s.r1Words??'';
+  document.getElementById('r1Errors').value=s.r1Errors??0;
+  document.getElementById('r2Words').value=s.r2Words??'';
+  document.getElementById('r2Errors').value=s.r2Errors??0;
+  document.getElementById('phrasingScore').value=s.phrasingScore??3;
+  document.getElementById('expressionScore').value=s.expressionScore??3;
+  document.getElementById('teacherFeedback').value=s.teacherFeedback??'';
+  updateSnapshot(s.student);
+}
+
+document.getElementById('calculateSave').addEventListener('click',()=>{
+  const id=document.getElementById('teacherSession').value;
+  let sessions=getSessions();
+  const i=sessions.findIndex(s=>s.id===id);
+  if(i<0) return;
+  const s=sessions[i];
+
+  const r1Words=+document.getElementById('r1Words').value||0;
+  const r1Errors=+document.getElementById('r1Errors').value||0;
+  const r1Seconds=+document.getElementById('r1Seconds').value||0;
+  const r2Words=+document.getElementById('r2Words').value||0;
+  const r2Errors=+document.getElementById('r2Errors').value||0;
+  const r2Seconds=+document.getElementById('r2Seconds').value||0;
+  const phrasing=+document.getElementById('phrasingScore').value;
+  const expression=+document.getElementById('expressionScore').value;
+
+  Object.assign(s,{
+    r1Words,r1Errors,r1Seconds,
+    r2Words,r2Errors,r2Seconds,
+    r1Wcpm:wcpm(r1Words,r1Errors,r1Seconds),
+    r2Wcpm:wcpm(r2Words,r2Errors,r2Seconds),
+    r1Accuracy:accuracy(r1Words,r1Errors),
+    r2Accuracy:accuracy(r2Words,r2Errors),
+    phrasingScore:phrasing,
+    expressionScore:expression,
+    prosodyScore:Math.round(((phrasing+expression)/2)*10)/10,
+    teacherFeedback:document.getElementById('teacherFeedback').value,
+    scored:true
+  });
+  sessions[i]=s;saveSessions(sessions);
+
+  const res=document.getElementById('teacherResult');
+  res.innerHTML=`✅ Saved for <b>${s.student}</b>. Read #1: <b>${s.r1Wcpm ?? '—'} WCPM</b>. Read #2: <b>${s.r2Wcpm ?? '—'} WCPM</b>. Accuracy: <b>${s.r2Accuracy ?? '—'}%</b>. Prosody: <b>${s.prosodyScore}/4</b>.`;
+  res.classList.remove('hidden');
+  renderRecords();updateSnapshot(s.student);refreshTeacherSelectors();
+});
+
+function updateSnapshot(student){
+  const scored=getSessions().filter(s=>s.student===student&&s.scored).sort((a,b)=>a.timestamp-b.timestamp);
+  const latest=scored[scored.length-1];
+  document.getElementById('mWcpm').textContent=latest?.r2Wcpm ?? '—';
+  document.getElementById('mAccuracy').textContent=latest?.r2Accuracy!=null?latest.r2Accuracy+'%':'—';
+  document.getElementById('mProsody').textContent=latest?.prosodyScore!=null?latest.prosodyScore+'/4':'—';
+  drawChart(scored);
+}
+
+function drawChart(records){
+  const c=document.getElementById('growthChart');
+  const ctx=c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);
+  ctx.strokeStyle='#d8dee6';ctx.lineWidth=1;
+  for(let y=40;y<c.height-30;y+=40){ctx.beginPath();ctx.moveTo(50,y);ctx.lineTo(c.width-20,y);ctx.stroke();}
+  ctx.fillStyle='#5b6772';ctx.font='12px Arial';
+  ctx.fillText('WCPM growth',50,20);
+  if(records.length===0){ctx.fillText('No scored sessions yet.',50,60);return;}
+  const vals=records.map(r=>r.r2Wcpm||0);
+  const max=Math.max(120,...vals)+10;
+  const min=0;
+  const left=55,right=c.width-25,top=35,bottom=c.height-35;
+  ctx.strokeStyle='#163a63';ctx.lineWidth=3;ctx.beginPath();
+  records.forEach((r,i)=>{
+    const x=records.length===1?(left+right)/2:left+(i/(records.length-1))*(right-left);
+    const y=bottom-((r.r2Wcpm-min)/(max-min))*(bottom-top);
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+  records.forEach((r,i)=>{
+    const x=records.length===1?(left+right)/2:left+(i/(records.length-1))*(right-left);
+    const y=bottom-((r.r2Wcpm-min)/(max-min))*(bottom-top);
+    ctx.fillStyle='#f39a2d';ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#1e2b36';ctx.fillText(String(r.r2Wcpm),x-8,y-10);
+    ctx.fillText(r.date,x-22,bottom+18);
+  });
+}
+
+function renderRecords(){
+  const student=document.getElementById('filterStudent').value;
+  const grade=document.getElementById('filterGrade').value;
+  let arr=getSessions().filter(s=>s.scored);
+  if(student)arr=arr.filter(s=>s.student===student);
+  if(grade)arr=arr.filter(s=>s.grade===grade);
+  arr.sort((a,b)=>b.timestamp-a.timestamp);
+  const body=document.getElementById('recordsBody');body.innerHTML='';
+  arr.forEach(s=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${s.date}</td><td>${s.student}</td><td>${s.teacher||''}</td><td>${s.grade}</td><td>${s.passage}</td>
+    <td>${s.r1Wcpm??''}</td><td>${s.r2Wcpm??''}</td><td>${s.r2Accuracy!=null?s.r2Accuracy+'%':''}</td>
+    <td>${s.prosodyScore!=null?s.prosodyScore+'/4':''}</td><td>${s.goal||''}</td>`;
+    body.appendChild(tr);
+  });
+}
+document.getElementById('filterStudent').addEventListener('change',renderRecords);
+document.getElementById('filterGrade').addEventListener('change',renderRecords);
+
+document.getElementById('exportCsv').addEventListener('click',()=>{
+  const rows=[["Date","Student","Teacher","Grade","Passage","Goal","Read1 WCPM","Read2 WCPM","Read1 Accuracy","Read2 Accuracy","Prosody","Phrasing","Expression","Teacher Feedback"]];
+  getSessions().filter(s=>s.scored).forEach(s=>rows.push([
+    s.date,s.student,s.teacher||'',s.grade,s.passage,s.goal,s.r1Wcpm,s.r2Wcpm,s.r1Accuracy,s.r2Accuracy,s.prosodyScore,s.phrasingScore,s.expressionScore,s.teacherFeedback||''
+  ]));
+  const csv=rows.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob=new Blob([csv],{type:"text/csv"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download="Blaze_Fluency_Progress.csv";a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
+
+document.getElementById('clearData').addEventListener('click',()=>{
+  if(confirm("Clear ALL saved fluency data from this browser? This cannot be undone unless you exported a backup.")){
+    localStorage.removeItem('blazeFluencySessions');
+    refreshTeacherSelectors();renderRecords();drawChart([]);
+  }
+});
+
+refreshTeacherSelectors();
+renderRecords();
+</script>
+</body>
+</html>
